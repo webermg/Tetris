@@ -1,75 +1,131 @@
 
-import {shapeNames, shapes, getNewPiece} from './piecefactory.js';
+// import {shapeNames, shapes, getNewPiece} from './piecefactory.js';
 
-let gameArea = document.getElementById("game-area");
-
-
-const grids =[]
+const gameArea = document.getElementById("game-area");
 
 
-const init =  () => {
-	for(let i = 0; i < 20; i++) {
+const grids = []
+
+//initial setup function
+window.onload = () => {
+	for (let i = 0; i < 20; i++) {
 		grids.push([]);
-		for(let j = 0; j < 10; j++) {
-			let gamePiece = document.createElement("div",{class:"gamepiece"});
+		for (let j = 0; j < 10; j++) {
+			let gamePiece = document.createElement("div", { class: "gamepiece" });
 			gamePiece.style.backgroundColor = "black";
+			gamePiece.style.color = "white";
+			// gamePiece.textContent = `${i},${j}`;
 			grids[i].push(gamePiece);
-			gameArea.appendChild(gamePiece);
+			gameArea.append(gamePiece);
 		}
 	}
-	
+
 }
 
-init();
+const isValid = (i, j) => {
+	console.log(i + ", " + j);
+	return i >= 0 && i < 20 && j >= 0 && j < 10 && grids[i][j].style.backgroundColor === "black";
+}
 
-const movePiece = (piece, dX, dY) => {
-	for(let i = 0; i < piece.length; i++) {
-		piece[i][0]+=dX;
-		piece[i][1]+=dY;
+//moves a piece in a direction indicated by dX and dY
+const movePiece = (piece, dx, dy) => {
+	colorPiece(piece.pos, "black");
+	let canMove = true;
+	for (let i = 0; i < piece.pos.length; i++) {
+		canMove &= isValid(piece.pos[i][0] + dx, piece.pos[i][1] + dy);
 	}
+	if (canMove) piece.move(dx, dy);
+	colorPiece(piece.pos, piece.color);
+	return canMove;
 }
 
+const rotatePiece = (piece, dir) => {
+	colorPiece(piece.pos, "black");
+	let initialPos = [[...piece.pos[0]],[...piece.pos[1]],[...piece.pos[2]],[...piece.pos[3]]];
+	console.log(JSON.stringify(initialPos));
+	let testPiece = new Piece(piece.name, initialPos, piece.color);
+	console.log(JSON.stringify(piece.pos))
+	testPiece.rotate(dir);
+	console.log(JSON.stringify(testPiece.pos));
+	let canRotate = true;
+	for(let i = 0; i < testPiece.pos.length; i++) {
+		canRotate &= isValid(testPiece.pos[i][0],testPiece.pos[i][1]);
+	}
+	console.log(canRotate);
+	if(canRotate) {
+		piece.rotate(dir);
+	}
+	colorPiece(piece.pos, piece.color);
+	return canRotate;
+}
+
+//colors coordinates contained in piece the color in color
 const colorPiece = (piece, color) => {
-	for(let i = 0; i < piece.length; i++) {
+	for (let i = 0; i < piece.length; i++) {
 		grids[piece[i][0]][piece[i][1]].style.backgroundColor = color;
 	}
 }
-	
 
-//main game loop
-;(function() {
-	let counter = 0;
-	const RATE = 10;
-	let run = true;
-	//temp
-	let piece = getNewPiece(shapeNames[Math.floor(Math.random() * shapeNames.length)]);
-	
-	function main() {
-		if(run) {
-			window.requestAnimationFrame(main);
-		}
-		
-		//loop stuff
-		if(counter === RATE) {
-			if(piece) {
-				colorPiece(piece.pos, "black");
-				movePiece(piece.pos,1,0);
-				console.log(piece.color + ", " + piece.pos);
-				colorPiece(piece.pos, piece.color);
-				if(piece.pos[0][0] === 19 || piece.pos[1][0] === 19 || piece.pos[2][0] === 19 || piece.pos[3][0] === 19) {
+
+	//main game loop
+	; (function () {
+		let counter = 0;
+		const RATE = 40;
+		let run = true;
+		//temp
+		let piece = getNewPiece();
+		//colorPiece(piece.pos, piece.color);
+		function main() {
+			if (run) {
+				window.requestAnimationFrame(main);
+			}
+			//input
+
+			//loop stuff
+			if (counter === RATE) {
+
+				// console.log(piece.color + ", " + piece.pos);
+
+				if (!movePiece(piece, 1, 0)) {
 					console.log("new");
-					piece = null;
+					piece = getNewPiece();
+					colorPiece(piece.pos, piece.color);
 				}
+				counter = 0;
 			}
-			else {
-				let name = shapeNames[Math.floor(Math.random() * shapeNames.length)];
-				piece = getNewPiece(name);
-				console.log(piece.color + ", " + piece.pos);
-			}
-			counter=0;
+			counter++;
 		}
-		counter++;
-	}
-	
-	main();
-})();
+
+		window.addEventListener("keydown", (e) => {
+			if (piece === null) return;
+			
+			if (e.code === "ArrowLeft") {
+				
+				movePiece(piece, 0, -1);
+				
+			}
+			if (e.code === "KeyZ") {
+				
+				rotatePiece(piece, 'CCW');
+				
+			}
+			if (e.code === "KeyX") {
+				
+				rotatePiece(piece, 'CW');
+				
+			}
+			if (e.code === "ArrowUp") {
+
+			}
+			if (e.code === "ArrowRight") {
+				
+				movePiece(piece, 0, 1);
+				
+			}
+			if (e.code === "ArrowDown") {
+			}
+			if (e.code === "Escape") run = !run;
+		})
+
+		main();
+	})();
