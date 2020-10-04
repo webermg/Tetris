@@ -95,6 +95,8 @@ const dropLines = lines => {
 }
 
 document.getElementById("startBtn").addEventListener("click", () => {
+	document.getElementById("startBtn").style.display = "none";
+	document.getElementById("stopBtn").style.display = "inline-block";
 	start(40);
 })
 
@@ -118,8 +120,9 @@ function start(r) {
 					clearLines(lines);
 					dropLines(lines);
 				}
+				
 				piece = getNewPiece();
-
+				if(!isValid(piece)) run = false;
 				colorPiece(piece.pos, piece.color);
 			}
 			counter = 0;
@@ -142,6 +145,7 @@ function start(r) {
 	}
 
 	window.addEventListener("keydown", (e) => {
+		if(!run) return;
 		if (piece === null) return;
 		if (e.code === "ArrowLeft") movePiece(piece, 0, -1);
 		if (e.code === "KeyZ") rotatePiece(piece, 'CCW');
@@ -163,6 +167,8 @@ function start(r) {
 	document.getElementById("stopBtn").addEventListener("click", () => {
 		run = false;
 		reset();
+		document.getElementById("stopBtn").style.display = "none";
+		document.getElementById("startBtn").style.display = "inline-block";
 	});
 
 	main();
