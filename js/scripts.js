@@ -130,6 +130,15 @@ function start(r) {
 	const pause = () => {
 		run = !run;
 		if (run) main();
+	};
+
+	const reset = () => {
+		piece = null;
+		for(let i = 0; i < 20; i++) {
+			for(let j = 0; j < 10; j++) {
+				grids[i][j].style.backgroundColor = "black"
+			}
+		}
 	}
 
 	window.addEventListener("keydown", (e) => {
@@ -141,7 +150,7 @@ function start(r) {
 		if (e.code === "ArrowRight") movePiece(piece, 0, 1);
 		if (e.code === "ArrowDown") movePiece(piece, 1, 0);
 		if (e.code === "Escape") pause();
-	})
+	});
 
 	document.getElementById("pauseBtn").addEventListener("click", () => {
 		pause();
@@ -149,7 +158,12 @@ function start(r) {
 		setTimeout(() => {
 			document.getElementById("pauseBtn").disabled = false;
 		}, 300);
-	})
+	});
+
+	document.getElementById("stopBtn").addEventListener("click", () => {
+		run = false;
+		reset();
+	});
 
 	main();
 };
