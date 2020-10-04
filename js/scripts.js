@@ -34,20 +34,18 @@ const movePiece = (piece, dx, dy) => {
 	return canMove;
 }
 
+//rotates a piece clockwise or counterclockwise
 const rotatePiece = (piece, dir) => {
 	colorPiece(piece.pos, "black");
-	let initialPos = [[...piece.pos[0]],[...piece.pos[1]],[...piece.pos[2]],[...piece.pos[3]]];
-	console.log(JSON.stringify(initialPos));
+	//create copy piece and rotate it to determine if rotation can be done
+	let initialPos = [[...piece.pos[0]], [...piece.pos[1]], [...piece.pos[2]], [...piece.pos[3]]];
 	let testPiece = new Piece(piece.name, initialPos, piece.color);
-	console.log(JSON.stringify(piece.pos))
 	testPiece.rotate(dir);
-	console.log(JSON.stringify(testPiece.pos));
 	let canRotate = true;
-	for(let i = 0; i < testPiece.pos.length; i++) {
-		canRotate &= isValid(testPiece.pos[i][0],testPiece.pos[i][1]);
+	for (let i = 0; i < testPiece.pos.length; i++) {
+		canRotate &= isValid(testPiece.pos[i][0], testPiece.pos[i][1]);
 	}
-	console.log(canRotate);
-	if(canRotate) {
+	if (canRotate) {
 		piece.rotate(dir);
 	}
 	colorPiece(piece.pos, piece.color);
@@ -63,20 +61,19 @@ const colorPiece = (piece, color) => {
 
 const getLines = () => {
 	let lines = [];
-	for(let i = 19; i >= 0; i--) {
+	for (let i = 19; i >= 0; i--) {
 		let addLine = true;
-		for(let j = 0; j < 10; j++) {
+		for (let j = 0; j < 10; j++) {
 			addLine &= grids[i][j].style.backgroundColor != "black";
 		}
-		if(addLine) lines.push(i);
+		if (addLine) lines.push(i);
 	}
-	console.log(JSON.stringify(lines));
 	return lines;
 }
 
 const clearLines = lines => {
-	for(let i = 0; i < lines.length; i++) {
-		for(let j = 0; j < 10; j++) {
+	for (let i = 0; i < lines.length; i++) {
+		for (let j = 0; j < 10; j++) {
 			grids[lines[i]][j].style.backgroundColor = "black";
 		}
 	}
@@ -85,77 +82,75 @@ const clearLines = lines => {
 const dropLines = lines => {
 	let dist = 0;
 	let ind = 0;
-	for(let i = 19; i >= 0; i--) {
-		if(lines[ind] === i) {
+	for (let i = 19; i >= 0; i--) {
+		if (lines[ind] === i) {
 			dist++;
 			ind++;
 		}
-		else {
-			for(let j = 0; j < 10; j++) {
-				grids[i+dist][j].style.backgroundColor = grids[i][j].style.backgroundColor;
+		else if(dist != 0) {
+			for (let j = 0; j < 10; j++) {
+				grids[i + dist][j].style.backgroundColor = grids[i][j].style.backgroundColor;
 				grids[i][j].style.backgroundColor = "black";
 			}
 		}
 	}
 }
 
-	//main game loop
-	; (function () {
-		let counter = 0;
-		const RATE = 40;
-		let run = true;
-		//temp
-		let piece = getNewPiece();
-		//colorPiece(piece.pos, piece.color);
-		function main() {
-			if (run) {
-				window.requestAnimationFrame(main);
-			}
-			//input
+document.getElementById("startBtn").addEventListener("click", () => {
+	start(40);
+})
 
-			//loop stuff
-			if (counter === RATE) {
+//main game loop
+function start(r) {
+	let counter = 0;
+	const RATE = r;
+	let run = true;
 
-				// console.log(piece.color + ", " + piece.pos);
-
-				if (!movePiece(piece, 1, 0)) {
-					console.log("new");
-					let lines = getLines();
-					if(lines.length > 0) {
-						clearLines(lines);
-						dropLines(lines);
-					}
-					piece = getNewPiece();
-					colorPiece(piece.pos, piece.color);
-				}
-				counter = 0;
-			}
-			counter++;
+	let piece = getNewPiece();
+	colorPiece(piece.pos, piece.color);
+	function main() {
+		if (run) {
+			window.requestAnimationFrame(main);
 		}
 
-		window.addEventListener("keydown", (e) => {
-			if (piece === null) return;
-			
-			if (e.code === "ArrowLeft") {
-				movePiece(piece, 0, -1);
+		if (counter === RATE) {
+			if (!movePiece(piece, 1, 0)) {
+				let lines = getLines();
+				if (lines.length > 0) {
+					clearLines(lines);
+					dropLines(lines);
+				}
+				piece = getNewPiece();
+				colorPiece(piece.pos, piece.color);
 			}
-			if (e.code === "KeyZ") {
-				rotatePiece(piece, 'CCW');
-			}
-			if (e.code === "KeyX") {
-				rotatePiece(piece, 'CW');
-			}
-			if (e.code === "ArrowUp") {
-				rotatePiece(piece, 'CW');
-			}
-			if (e.code === "ArrowRight") {
-				movePiece(piece, 0, 1);
-			}
-			if (e.code === "ArrowDown") {
-				movePiece(piece,1,0);
-			}
-			if (e.code === "Escape") run = !run;
-		})
+			counter = 0;
+		}
+		counter++;
+	}
 
-		main();
-	})();
+	const pause = () => {
+		run = !run;
+		if (run) main();
+	}
+
+	window.addEventListener("keydown", (e) => {
+		if (piece === null) return;
+		if (e.code === "ArrowLeft") movePiece(piece, 0, -1);
+		if (e.code === "KeyZ") rotatePiece(piece, 'CCW');
+		if (e.code === "KeyX") rotatePiece(piece, 'CW');
+		if (e.code === "ArrowUp") rotatePiece(piece, 'CW');
+		if (e.code === "ArrowRight") movePiece(piece, 0, 1);
+		if (e.code === "ArrowDown") movePiece(piece, 1, 0);
+		if (e.code === "Escape") pause();
+	})
+
+	document.getElementById("pauseBtn").addEventListener("click", () => {
+		pause();
+		document.getElementById("pauseBtn").disabled = true;
+		setTimeout(() => {
+			document.getElementById("pauseBtn").disabled = false;
+		}, 300);
+	})
+
+	main();
+};
