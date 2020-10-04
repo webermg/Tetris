@@ -34,26 +34,6 @@ class Piece {
 		}
 		console.log(JSON.stringify(this.pos));
 	}
-
-	getExtremity(orientation) {
-		let xMax = -Infinity, yMax = -Infinity, yMin = Infinity;
-		for (let i = 0; i < this.pos.length; i++) {
-			xMax = this.pos[i][0] > xMax ? this.pos[i][0] : xMax;
-			yMax = this.pos[i][1] > yMax ? this.pos[i][1] : yMax;
-			yMin = this.pos[i][1] < yMin ? this.pos[i][1] : yMin;
-		}
-		switch (orientation) {
-			case "left":
-				return yMin;
-			case "right":
-				return yMax;
-			case "bottom":
-				return xMax;
-			default:
-				return -1;
-		}
-
-	}
 }
 
 const shapes = [
