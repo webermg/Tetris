@@ -10,35 +10,6 @@
 	margin: auto;
 	grid-template-rows: repeat(20,29px);
 	grid-template-columns: repeat(10,29px);
-	border-style: solid;
 	grid-gap: 1px;
-}
-
-#game-piece {
-	position: relative;
-	min-height: 30px;
-	min-width: 30px;
-	max-height: 30px;
-	max-width: 30px;
-	border-radius: 15px;
-	background-color: #00FF00;
-}
-
-#target-piece {
-	position: relative;
-	background-color: #FF0000;
-}
-
-#winner-text {
-	
-	font-size: 6em;
-}
-
-#wintextdiv {
-	margin: 180px auto;
-	text-align: center;
-}
-
-.gamepiece {
-	
+	background-color: black;
 }
