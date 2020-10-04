@@ -1,9 +1,4 @@
-
-// import {shapeNames, shapes, getNewPiece} from './piecefactory.js';
-
 const gameArea = document.getElementById("game-area");
-
-
 const grids = []
 
 //initial setup function
@@ -66,6 +61,43 @@ const colorPiece = (piece, color) => {
 	}
 }
 
+const getLines = () => {
+	let lines = [];
+	for(let i = 19; i >= 0; i--) {
+		let addLine = true;
+		for(let j = 0; j < 10; j++) {
+			addLine &= grids[i][j].style.backgroundColor != "black";
+		}
+		if(addLine) lines.push(i);
+	}
+	console.log(JSON.stringify(lines));
+	return lines;
+}
+
+const clearLines = lines => {
+	for(let i = 0; i < lines.length; i++) {
+		for(let j = 0; j < 10; j++) {
+			grids[lines[i]][j].style.backgroundColor = "black";
+		}
+	}
+}
+
+const dropLines = lines => {
+	let dist = 0;
+	let ind = 0;
+	for(let i = 19; i >= 0; i--) {
+		if(lines[ind] === i) {
+			dist++;
+			ind++;
+		}
+		else {
+			for(let j = 0; j < 10; j++) {
+				grids[i+dist][j].style.backgroundColor = grids[i][j].style.backgroundColor;
+				grids[i][j].style.backgroundColor = "black";
+			}
+		}
+	}
+}
 
 	//main game loop
 	; (function () {
@@ -88,6 +120,11 @@ const colorPiece = (piece, color) => {
 
 				if (!movePiece(piece, 1, 0)) {
 					console.log("new");
+					let lines = getLines();
+					if(lines.length > 0) {
+						clearLines(lines);
+						dropLines(lines);
+					}
 					piece = getNewPiece();
 					colorPiece(piece.pos, piece.color);
 				}
@@ -100,29 +137,22 @@ const colorPiece = (piece, color) => {
 			if (piece === null) return;
 			
 			if (e.code === "ArrowLeft") {
-				
 				movePiece(piece, 0, -1);
-				
 			}
 			if (e.code === "KeyZ") {
-				
 				rotatePiece(piece, 'CCW');
-				
 			}
 			if (e.code === "KeyX") {
-				
 				rotatePiece(piece, 'CW');
-				
 			}
 			if (e.code === "ArrowUp") {
-
+				rotatePiece(piece, 'CW');
 			}
 			if (e.code === "ArrowRight") {
-				
 				movePiece(piece, 0, 1);
-				
 			}
 			if (e.code === "ArrowDown") {
+				movePiece(piece,1,0);
 			}
 			if (e.code === "Escape") run = !run;
 		})
