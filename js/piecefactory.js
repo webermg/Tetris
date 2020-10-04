@@ -32,7 +32,6 @@ class Piece {
 			this.pos[i][0] = (xp * rot[0][0] + yp * rot[1][0]) + center[0];
 			this.pos[i][1] = (xp * rot[0][1] + yp * rot[1][1]) + center[1];
 		}
-		console.log(JSON.stringify(this.pos));
 	}
 }
 

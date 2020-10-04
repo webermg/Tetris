@@ -9,7 +9,6 @@ window.onload = () => {
 			let gamePiece = document.createElement("div", { class: "gamepiece" });
 			gamePiece.style.backgroundColor = "black";
 			gamePiece.style.color = "white";
-			// gamePiece.textContent = `${i},${j}`;
 			grids[i].push(gamePiece);
 			gameArea.append(gamePiece);
 		}
@@ -17,19 +16,23 @@ window.onload = () => {
 
 }
 
-const isValid = (i, j) => {
-	console.log(i + ", " + j);
+const isValidP = (i, j) => {
 	return i >= 0 && i < 20 && j >= 0 && j < 10 && grids[i][j].style.backgroundColor === "black";
+}
+
+const isValid = (piece) => {
+	for (let i = 0; i < piece.pos.length; i++) {
+		if(!isValidP(piece.pos[i][0], piece.pos[i][1])) return false;
+	}
+	return true;
 }
 
 //moves a piece in a direction indicated by dX and dY
 const movePiece = (piece, dx, dy) => {
 	colorPiece(piece.pos, "black");
-	let canMove = true;
-	for (let i = 0; i < piece.pos.length; i++) {
-		canMove &= isValid(piece.pos[i][0] + dx, piece.pos[i][1] + dy);
-	}
-	if (canMove) piece.move(dx, dy);
+	piece.move(dx,dy);
+	const canMove = isValid(piece);
+	if(!canMove) piece.move(-dx,-dy);
 	colorPiece(piece.pos, piece.color);
 	return canMove;
 }
@@ -41,15 +44,10 @@ const rotatePiece = (piece, dir) => {
 	let initialPos = [[...piece.pos[0]], [...piece.pos[1]], [...piece.pos[2]], [...piece.pos[3]]];
 	let testPiece = new Piece(piece.name, initialPos, piece.color);
 	testPiece.rotate(dir);
-	let canRotate = true;
-	for (let i = 0; i < testPiece.pos.length; i++) {
-		canRotate &= isValid(testPiece.pos[i][0], testPiece.pos[i][1]);
-	}
-	if (canRotate) {
+	if (isValid(testPiece)) {
 		piece.rotate(dir);
 	}
 	colorPiece(piece.pos, piece.color);
-	return canRotate;
 }
 
 //colors coordinates contained in piece the color in color
@@ -121,6 +119,7 @@ function start(r) {
 					dropLines(lines);
 				}
 				piece = getNewPiece();
+
 				colorPiece(piece.pos, piece.color);
 			}
 			counter = 0;
